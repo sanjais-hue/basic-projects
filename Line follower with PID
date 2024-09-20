@@ -1,0 +1,61 @@
+#include <WiFi.h>  // Library for Wi-Fi connectivity (not used in this example)
+#include <Arduino.h>  // Library for Arduino functions
+
+// Define pins for line sensors
+#define LEFT_SENSOR_PIN 2
+#define RIGHT_SENSOR_PIN 3
+
+// Define pins for motor control
+#define LEFT_MOTOR_FORWARD_PIN 4
+#define LEFT_MOTOR_BACKWARD_PIN 5
+#define RIGHT_MOTOR_FORWARD_PIN 6
+#define RIGHT_MOTOR_BACKWARD_PIN 7
+
+// Define motor speed variables
+int leftMotorSpeed = 0;
+int rightMotorSpeed = 0;
+
+void setup() {
+  // Initialize line sensors as inputs
+  pinMode(LEFT_SENSOR_PIN, INPUT);
+  pinMode(RIGHT_SENSOR_PIN, INPUT);
+
+  // Initialize motor control pins as outputs
+  pinMode(LEFT_MOTOR_FORWARD_PIN, OUTPUT);
+  pinMode(LEFT_MOTOR_BACKWARD_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_FORWARD_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_BACKWARD_PIN, OUTPUT);
+}
+
+void loop() {
+  // Read line sensor values
+  int leftSensorValue = digitalRead(LEFT_SENSOR_PIN);
+  int rightSensorValue = digitalRead(RIGHT_SENSOR_PIN);
+
+  // Determine motor speeds based on line sensor values
+  if (leftSensorValue == 0 && rightSensorValue == 0) {
+    // Both sensors on the line, move forward
+    leftMotorSpeed = 255;
+    rightMotorSpeed = 255;
+  } else if (leftSensorValue == 0 && rightSensorValue == 1) {
+    // Left sensor on the line, right sensor off, turn left
+    leftMotorSpeed = 255;
+    rightMotorSpeed = 0;
+  } else if (leftSensorValue == 1 && rightSensorValue == 0) {
+    // Left sensor off, right sensor on the line, turn right
+    leftMotorSpeed = 0;
+    rightMotorSpeed = 255;
+  } else {
+    // Both sensors off the line, stop
+    leftMotorSpeed = 0;
+    rightMotorSpeed = 0;
+  }
+
+  // Set motor speeds
+  analogWrite(LEFT_MOTOR_FORWARD_PIN, leftMotorSpeed);
+  analogWrite(LEFT_MOTOR_BACKWARD_PIN, 0);
+  analogWrite(RIGHT_MOTOR_FORWARD_PIN, rightMotorSpeed);
+  analogWrite(RIGHT_MOTOR_BACKWARD_PIN, 0);
+
+  delay(50);  // Wait for 50ms before taking the next reading
+}
