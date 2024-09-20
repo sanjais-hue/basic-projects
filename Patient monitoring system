@@ -1,0 +1,55 @@
+#include <WiFi.h>  // Library for Wi-Fi connectivity
+#include <Arduino.h>  // Library for Arduino functions
+#include <DHT.h>  // Library for DHT11 temperature and humidity sensor
+#include <PulseSensorPlayground.h>  // Library for pulse sensor
+
+// Define Wi-Fi credentials
+const char* ssid = "your_wifi_ssid";
+const char* password = "your_wifi_password";
+
+// Define pins for sensors
+#define DHT_PIN 2  // DHT11 temperature and humidity sensor
+#define PULSE_PIN A0  // Pulse sensor
+#define OXIMETER_PIN A1  // Oximeter sensor (optional)
+
+// Create sensor objects
+DHT dht(DHT_PIN, DHT11);
+PulseSensor pulseSensor(PULSE_PIN);
+
+void setup() {
+  // Initialize Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to Wi-Fi...");
+  }
+  Serial.println("Connected to Wi-Fi");
+
+  // Initialize sensors
+  dht.begin();
+  pulseSensor.begin();
+}
+
+void loop() {
+  // Read temperature and humidity values
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  // Read pulse rate value
+  int pulseRate = pulseSensor.getBeatsPerMinute();
+
+  // Read oxygen saturation value (if oximeter sensor is used)
+  int oxygenSaturation = 0;  // Replace with oximeter sensor reading code
+
+  // Send data to Wi-Fi (e.g. using a web interface or mobile app)
+  // For example, let's assume we send the data to a web server using HTTP
+  WiFiClient client;
+  HTTPClient http;
+  http.begin("http://example.com/patient_data");
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  String data = "temperature=" + String(temperature) + "&humidity=" + String(humidity) + "&pulse_rate=" + String(pulseRate) + "&oxygen_saturation=" + String(oxygenSaturation);
+  int responseCode = http.POST(data);
+  http.end();
+
+  delay(1000);  // Wait for 1 second before taking the next reading
+}
