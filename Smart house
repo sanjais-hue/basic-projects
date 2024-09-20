@@ -1,0 +1,70 @@
+#include <WiFi.h>  // Library for Wi-Fi connectivity
+#include <Arduino.h>  // Library for Arduino functions
+#include <DHT.h>  // Library for DHT11 temperature and humidity sensor
+#include <PubSubClient.h>  // Library for MQTT communication
+
+// Define Wi-Fi credentials
+const char* ssid = "your_wifi_ssid";
+const char* password = "your_wifi_password";
+
+// Define pins for sensors and actuators
+#define DHT_PIN 2  // DHT11 temperature and humidity sensor
+#define LIGHT_PIN 3  // Light sensor
+#define FAN_PIN 4  // Fan actuator
+#define LED_PIN 5  // LED indicator
+
+// Define MQTT broker credentials
+const char* mqttServer = "your_mqtt_broker_ip";
+const char* mqttTopic = "smart_house";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+DHT dht(DHT_PIN, DHT11);
+
+void setup() {
+  // Initialize Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to Wi-Fi...");
+  }
+  Serial.println("Connected to Wi-Fi");
+
+  // Initialize sensors and actuators
+  dht.begin();
+  pinMode(LIGHT_PIN, INPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  // Connect to MQTT broker
+  client.setServer(mqttServer, 1883);
+}
+
+void loop() {
+  // Read temperature and humidity values
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  // Read light sensor value
+  int lightValue = analogRead(LIGHT_PIN);
+
+  // Control fan actuator based on temperature and humidity
+  if (temperature > 25 || humidity > 60) {
+    digitalWrite(FAN_PIN, HIGH);
+  } else {
+    digitalWrite(FAN_PIN, LOW);
+  }
+
+  // Control LED indicator based on light sensor value
+  if (lightValue < 500) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  // Publish sensor data to MQTT broker
+  client.publish(mqttTopic, "temperature=" + String(temperature) + "&humidity=" + String(humidity) + "&light=" + String(lightValue));
+
+  delay(1000);  // Wait for 1 second before taking the next reading
+}
