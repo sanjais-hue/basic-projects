@@ -1,0 +1,64 @@
+#include <WiFi.h>  // Library for Wi-Fi connectivity
+#include <Servo.h>  // Library for servo motors
+
+// Define Wi-Fi credentials
+const char* ssid = "your_wifi_ssid";
+const char* password = "your_wifi_password";
+
+// Define servo motor pins
+#define BASE_SERVO_PIN 13
+#define SHOULDER_SERVO_PIN 12
+#define ELBOW_SERVO_PIN 11
+#define WRIST_SERVO_PIN 10
+#define GRIP_SERVO_PIN 9
+
+// Create servo motor objects
+Servo baseServo;
+Servo shoulderServo;
+Servo elbowServo;
+Servo wristServo;
+Servo gripServo;
+
+void setup() {
+  // Initialize Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to Wi-Fi...");
+  }
+  Serial.println("Connected to Wi-Fi");
+  Serial.println("Initializing servo motors...");
+
+  // Initialize servo motors
+  baseServo.attach(BASE_SERVO_PIN);
+  shoulderServo.attach(SHOULDER_SERVO_PIN);
+  elbowServo.attach(ELBOW_SERVO_PIN);
+  wristServo.attach(WRIST_SERVO_PIN);
+  gripServo.attach(GRIP_SERVO_PIN);
+
+  // Set initial servo motor positions
+  baseServo.write(90);
+  shoulderServo.write(90);
+  elbowServo.write(90);
+  wristServo.write(90);
+  gripServo.write(90);
+}
+
+void loop() {
+  // Read commands from Wi-Fi (e.g. using a web interface or mobile app)
+  // For example, let's assume we receive a command to move the arm to a specific position
+  int baseAngle = 45;
+  int shoulderAngle = 60;
+  int elbowAngle = 30;
+  int wristAngle = 90;
+  int gripAngle = 0;
+
+  // Move servo motors to desired positions
+  baseServo.write(baseAngle);
+  shoulderServo.write(shoulderAngle);
+  elbowServo.write(elbowAngle);
+  wristServo.write(wristAngle);
+  gripServo.write(gripAngle);
+
+  delay(1000);  // Wait for 1 second before taking the next command
+}
