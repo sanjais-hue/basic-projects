@@ -1,0 +1,34 @@
+#include <DHT.h>  // Library for DHT11 temperature and humidity sensor
+#include <MQ135.h>  // Library for MQ135 air quality sensor
+
+#define DHTPIN 2  // Pin for DHT11 sensor
+#define MQPIN A0  // Pin for MQ135 sensor
+
+DHT dht(DHTPIN, DHT11);  // Create a DHT object
+MQ135 mq(MQPIN);  // Create an MQ135 object
+
+void setup() {
+  Serial.begin(9600);  // Initialize serial communication
+  dht.begin();  // Initialize DHT11 sensor
+  mq.begin();  // Initialize MQ135 sensor
+}
+
+void loop() {
+  int temperature = dht.readTemperature();  // Read temperature in Celsius
+  int humidity = dht.readHumidity();  // Read humidity in percentage
+  int airQuality = mq.readPPM();  // Read air quality in parts per million (PPM)
+
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.println("°C");
+
+  Serial.print("Humidity: ");
+  Serial.print(humidity);
+  Serial.println("%");
+
+  Serial.print("Air Quality: ");
+  Serial.print(airQuality);
+  Serial.println(" PPM");
+
+  delay(10000);  // Wait for 10 seconds before taking the next reading
+}
